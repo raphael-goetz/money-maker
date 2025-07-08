@@ -10,21 +10,20 @@
                     time
                 </p>
             </div>
-            <TransactionSummary
-                :totalIncome="totalIncome"
-                :totalExpense="totalExpense"
-                :balance="balance"
-            />
-            <div class="flex justify-between items-center">
-                <TransactionForm :onAdd="handleAdd" />
+            <div class="flex flex-col gap-4">
+                <TransactionSummary
+                    :totalIncome="totalIncome"
+                    :totalExpense="totalExpense"
+                    :balance="balance"
+                />
                 <TransactionList :transactions="transactions" />
+                <SavingsGoals :currentBalance="balance" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import TransactionForm from "../components/TransactionForm.vue";
 import TransactionSummary from "../components/TransactionSummary.vue";
 import TransactionList from "../components/TransactionList.vue";
 import { useTransactions } from "../composables/useTransactions.ts";

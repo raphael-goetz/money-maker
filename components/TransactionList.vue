@@ -1,34 +1,161 @@
 <template>
-    <div>
-        <h3>Transactions - This Month</h3>
-        <DataTable
-            :value="transactions"
-            responsiveLayout="scroll"
-            :emptyMessage="'No transactions'"
+    <div class="w-full">
+        <!-- Current Month Transactions -->
+        <div
+            class="border-0 shadow-xl bg-white/80 backdrop-blur-sm hover:shadow-2xl transition-all duration-300 rounded-lg"
         >
-            <Column field="topic" header="Topic" />
-            <Column field="type" header="Type" />
-            <Column field="amount" header="Amount" :body="formatAmount" />
-            <Column field="date" header="Date" :body="formatDate" />
-        </DataTable>
+            <div
+                class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-t-lg p-6"
+            >
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3
+                            class="flex items-center gap-3 text-xl font-semibold"
+                        >
+                            <div class="p-2 bg-white/20 rounded-lg">
+                                <History :size="16" />
+                            </div>
+                            This Month's Activity
+                        </h3>
+                        <p class="text-blue-100 mt-1">
+                            All transactions for this month
+                        </p>
+                    </div>
+                    <Button
+                        label="Add Transaction"
+                        @click="visible = true"
+                        class="bg-white/20 hover:bg-white/30 border-white/30 text-white"
+                    />
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div
+                    v-if="!transactions || transactions.length === 0"
+                    class="text-center py-12"
+                >
+                    <div
+                        class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4"
+                    >
+                        <i class="pi pi-calendar h-8 w-8 text-gray-400"></i>
+                    </div>
+                    <p class="text-gray-500 text-lg">
+                        No transactions this month yet
+                    </p>
+                    <p class="text-gray-400 text-sm mt-1">
+                        Add your first transaction to get started!
+                    </p>
+                </div>
+
+                <div v-else class="space-y-3 max-h-96 overflow-y-auto pr-2">
+                    <div
+                        v-for="transaction in transactions"
+                        :key="transaction.id"
+                        class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200 hover:shadow-md transition-all duration-200"
+                    >
+                        <div class="flex items-center gap-4">
+                            <span
+                                :class="
+                                    transaction.type === 'income'
+                                        ? 'px-3 py-1 font-semibold bg-green-100 text-green-700 hover:bg-green-200 rounded-full text-sm'
+                                        : 'px-3 py-1 font-semibold bg-red-100 text-red-700 hover:bg-red-200 rounded-full text-sm'
+                                "
+                            >
+                                {{
+                                    transaction.type === "income" ? "💰" : "💸"
+                                }}
+                                {{ transaction.type }}
+                            </span>
+                            <div>
+                                <div class="font-semibold text-gray-900">
+                                    {{ transaction.topic }}
+                                </div>
+                                <div
+                                    v-if="transaction.description"
+                                    class="text-sm text-gray-600 mt-1"
+                                >
+                                    {{ transaction.description }}
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">
+                                    {{ formatDate(transaction.date) }}
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            :class="
+                                transaction.type === 'income'
+                                    ? 'font-bold text-lg text-green-600'
+                                    : 'font-bold text-lg text-red-600'
+                            "
+                        >
+                            {{ transaction.type === "income" ? "+" : "-"
+                            }}{{ transaction.amount.toFixed(2) }}€
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add Transaction Dialog -->
+        <Dialog
+            v-model:visible="visible"
+            modal
+            header="Add New Transaction"
+            :style="{ width: '25rem' }"
+        >
+            <span class="text-surface-500 dark:text-surface-400 block mb-8">
+                Add a new transaction to your records.
+            </span>
+            <div class="flex items-center gap-4 mb-4">
+                <label for="topic" class="font-semibold w-24">Topic</label>
+                <InputText id="topic" class="flex-auto" autocomplete="off" />
+            </div>
+            <div class="flex items-center gap-4 mb-4">
+                <label for="amount" class="font-semibold w-24">Amount</label>
+                <InputText id="amount" class="flex-auto" autocomplete="off" />
+            </div>
+            <div class="flex items-center gap-4 mb-8">
+                <label for="type" class="font-semibold w-24">Type</label>
+                <Dropdown
+                    id="type"
+                    class="flex-auto"
+                    :options="[
+                        { label: 'Income', value: 'income' },
+                        { label: 'Expense', value: 'expense' },
+                    ]"
+                    optionLabel="label"
+                    optionValue="value"
+                />
+            </div>
+            <div class="flex justify-end gap-2">
+                <Button
+                    type="button"
+                    label="Cancel"
+                    severity="secondary"
+                    @click="visible = false"
+                />
+                <Button type="button" label="Save" @click="visible = false" />
+            </div>
+        </Dialog>
     </div>
 </template>
 
 <script setup>
-import DataTable from "primevue/datatable";
-import Column from "primevue/column";
+import { ref } from "vue";
+import { History } from "lucide-vue-next";
 
 const props = defineProps({
     transactions: Array,
 });
 
-function formatAmount(row) {
-    return row.type === "expense"
-        ? `- $${row.amount.toFixed(2)}`
-        : `$${row.amount.toFixed(2)}`;
-}
+const visible = ref(false);
 
-function formatDate(row) {
-    return new Date(row.date).toLocaleDateString();
-}
+const formatDate = (date) => {
+    if (!date) return "";
+    return new Date(date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+};
 </script>
