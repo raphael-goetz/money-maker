@@ -85,6 +85,15 @@
                 </div>
             </div>
         </div>
+
+        <Dialog
+            v-model:visible="visible"
+            modal
+            header="Add New Goal"
+            class="bg-white text-black w-[40%]"
+        >
+            <GoalDialog :onGoalAdd="handleGoalAdd" />
+        </Dialog>
     </div>
 </template>
 
@@ -98,6 +107,7 @@ const props = defineProps({
         default: 0,
     },
 });
+const visible = ref(false);
 
 const goals = ref([]);
 const newGoal = ref({

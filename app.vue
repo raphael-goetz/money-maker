@@ -1,5 +1,5 @@
 <template>
-    <PrimeVueProvider>
+    <NuxtLayout>
         <NuxtPage />
-    </PrimeVueProvider>
+    </NuxtLayout>
 </template>

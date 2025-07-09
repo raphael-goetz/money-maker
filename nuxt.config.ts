@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-05-15",
   devtools: { enabled: true },
   modules: ["@nuxtjs/tailwindcss", "@primevue/nuxt-module"],
+  build: {
+    transpile: ["primevue"],
+  },
   primevue: {
     options: {
       theme: {

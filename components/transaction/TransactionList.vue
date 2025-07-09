@@ -101,41 +101,9 @@
             v-model:visible="visible"
             modal
             header="Add New Transaction"
-            :style="{ width: '25rem' }"
+            class="bg-white text-black w-[40%]"
         >
-            <span class="text-surface-500 dark:text-surface-400 block mb-8">
-                Add a new transaction to your records.
-            </span>
-            <div class="flex items-center gap-4 mb-4">
-                <label for="topic" class="font-semibold w-24">Topic</label>
-                <InputText id="topic" class="flex-auto" autocomplete="off" />
-            </div>
-            <div class="flex items-center gap-4 mb-4">
-                <label for="amount" class="font-semibold w-24">Amount</label>
-                <InputText id="amount" class="flex-auto" autocomplete="off" />
-            </div>
-            <div class="flex items-center gap-4 mb-8">
-                <label for="type" class="font-semibold w-24">Type</label>
-                <Dropdown
-                    id="type"
-                    class="flex-auto"
-                    :options="[
-                        { label: 'Income', value: 'income' },
-                        { label: 'Expense', value: 'expense' },
-                    ]"
-                    optionLabel="label"
-                    optionValue="value"
-                />
-            </div>
-            <div class="flex justify-end gap-2">
-                <Button
-                    type="button"
-                    label="Cancel"
-                    severity="secondary"
-                    @click="visible = false"
-                />
-                <Button type="button" label="Save" @click="visible = false" />
-            </div>
+            <TransactionDialog :onAdd="handleAdd" />
         </Dialog>
     </div>
 </template>
@@ -143,12 +111,22 @@
 <script setup>
 import { ref } from "vue";
 import { History } from "lucide-vue-next";
+import TransactionDialog from "./TransactionDialog.vue";
 
 const props = defineProps({
     transactions: Array,
+    onAdd: {
+        type: Function,
+        required: true,
+    },
 });
 
 const visible = ref(false);
+
+const handleAdd = (transaction) => {
+    props.onAdd(transaction);
+    visible.value = false;
+};
 
 const formatDate = (date) => {
     if (!date) return "";
